@@ -1,18 +1,17 @@
-
 # 🧠 JARvis – AI Assistant with RAG Capabilities
 
-JARvis is a Spring Boot-based AI assistant integrating document ingestion, embedding, and querying using Retrieval-Augmented Generation (RAG). It enables training on domain-specific examples and querying a knowledge base through RESTful APIs.
+**JARvis** is a Java Spring Boot-based framework for building Retrieval-Augmented Generation (RAG) assistants. It allows ingestion of documents, embedding them into a vector store (Milvus), and querying the knowledge base using Large Language Models (LLMs) via Spring AI (Ollama backend).
 
 ---
 
-## 🔧 Tech Stack
+## 🧰 Tech Stack
 
-- Java 17+
-- Spring Boot
-- Spring AI (Ollama Integration)
-- Milvus (Vector Database)
-- REST APIs
-- Lombok, SLF4J
+- **Java 21**
+- **Spring Boot 3.2.5**
+- **Spring AI 0.8.1** (Ollama, Transformers)
+- **Milvus SDK (2.3.4)**
+- **Swagger UI** (`springdoc-openapi`)
+- **Spring Security (optional)**
 
 ---
 
@@ -20,11 +19,12 @@ JARvis is a Spring Boot-based AI assistant integrating document ingestion, embed
 
 ### ✅ Prerequisites
 
-- Java 17+
+- Java 21+
 - Maven 3.8+
 - Docker (for Milvus and Ollama)
+- Git
 
-### 🛠️ Installation
+### 🛠 Installation
 
 ```bash
 git clone https://github.com/rajeevkri/JARvis.git
@@ -35,39 +35,37 @@ mvn spring-boot:run
 
 ---
 
-## 🧩 Project Structure
+## 🔩 Configuration Files
 
-```
-com.jarvis
-├── controller
-│   ├── TrainingController.java
-│   └── RagController.java
-├── service
-│   ├── DocumentEmbedder.java
-│   ├── KnowledgeService.java
-│   └── ModelTrainingService.java
-├── model
-│   ├── TrainingExample.java
-│   └── KnowledgeDocument.java
-└── JaRvisApplication.java
-```
+| File | Description |
+|------|-------------|
+| `EmbeddingConfig.java` | Spring AI embedding model config |
+| `OllamaConfig.java` | LLM connection config using Ollama |
+| `MilvusConfig.java` | Config for connecting to Milvus vector DB |
+| `VectorStoreConfig.java` | Setup for using Milvus as a vector store |
+| `SwaggerConfig.java` | Enables Swagger UI for REST APIs |
+| `SecurityConfig.java` | (Optional) Security configuration for securing endpoints |
 
 ---
 
 ## 🧠 Features
 
-- Train with question-answer examples.
-- Embed documents into vector DB (Milvus).
-- Query the knowledge base via a smart assistant using RAG.
+- Upload and embed documents with metadata
+- Train a small model with question-answer examples
+- Query your knowledge base using semantic search + LLM (RAG flow)
+- Integrated with Ollama LLM via Spring AI
+- Swagger UI enabled for testing
 
 ---
 
 ## 📡 API Endpoints
 
-### 1. `POST /train` – Train the model
+Base URL: `http://localhost:8080`
 
-**Payload**:
+### 1. `POST /train`  
+Train the assistant with structured examples.
 
+**Payload:**
 ```json
 [
   {
@@ -77,10 +75,10 @@ com.jarvis
 ]
 ```
 
-### 2. `POST /embed` – Embed document
+### 2. `POST /embed`  
+Embed a new document into the vector store.
 
-**Payload**:
-
+**Payload:**
 ```json
 {
   "id": "doc1",
@@ -91,10 +89,10 @@ com.jarvis
 }
 ```
 
-### 3. `POST /query` – Ask a question
+### 3. `POST /query`  
+Ask a question to the assistant.
 
-**Payload**:
-
+**Payload:**
 ```json
 {
   "question": "What is JARvis?",
@@ -104,21 +102,46 @@ com.jarvis
 
 ---
 
-## 🔍 Key Classes
+## 📁 Project Structure
 
-| Class | Purpose |
-|-------|---------|
-| `JaRvisApplication` | Bootstraps the Spring Boot app |
-| `TrainingController` | Endpoint to submit training data |
-| `RagController` | Embedding/query APIs |
-| `DocumentEmbedder` | Handles vector storage and embedding |
-| `ModelTrainingService` | Trains on question-answer pairs |
-| `KnowledgeService` | Handles RAG logic |
-| `TrainingExample`, `KnowledgeDocument` | Data models |
+```
+com.jarvis
+├── controller
+│   ├── TrainingController.java
+│   └── RagController.java
+├── model
+│   ├── TrainingExample.java
+│   └── KnowledgeDocument.java
+├── service
+│   ├── DocumentEmbedder.java
+│   ├── KnowledgeService.java
+│   └── ModelTrainingService.java
+├── config
+│   ├── MilvusConfig.java
+│   ├── OllamaConfig.java
+│   ├── EmbeddingConfig.java
+│   ├── VectorStoreConfig.java
+│   ├── SwaggerConfig.java
+│   └── SecurityConfig.java (optional)
+└── JaRvisApplication.java
+```
 
 ---
 
-## 🧪 Example Usage
+## 🔍 Key Components
+
+| Component | Purpose |
+|----------|---------|
+| `DocumentEmbedder` | Embeds text and stores it in Milvus |
+| `ModelTrainingService` | Trains a local in-memory QA model |
+| `KnowledgeService` | Combines retrieval and LLM response |
+| `MilvusConfig` | Vector DB configuration |
+| `OllamaConfig` | LLM setup (e.g., llama3, mistral, etc.) |
+| `SwaggerConfig` | Swagger UI (`/swagger-ui.html`) |
+
+---
+
+## 🧪 Example cURL Requests
 
 ```bash
 curl -X POST http://localhost:8080/embed -H "Content-Type: application/json" -d '{
@@ -137,33 +160,51 @@ curl -X POST http://localhost:8080/query -H "Content-Type: application/json" -d 
 
 ---
 
-## 🛠 Configuration Notes
+## 🔒 Security (Optional)
 
-Ensure Spring AI is connected to:
-- Ollama (LLM backend)
-- Milvus (for vector search)
-
-Configure in `application.properties`.
+- Use `SecurityConfig.java` to enable endpoint protection
+- Integrate JWT or Basic Auth if needed
 
 ---
 
-## 👥 Contribution
+## 🔬 Development Tips
 
-PRs are welcome! Areas to improve:
-- UI Integration
-- PDF/CSV ingestion
-- Batch processing
+- LLM model configuration can be updated in `OllamaConfig`
+- Customize Milvus collection, index config in `MilvusConfig`
+- Extend embedding logic in `DocumentEmbedder` to handle PDF/CSV
+
+---
+
+## 📚 Swagger UI
+
+Once the app is running, open:
+```
+http://localhost:8080/swagger-ui.html
+```
+
+To try out API endpoints interactively.
+
+---
+
+## 🤝 Contributing
+
+- Fork the repo
+- Add improvements (UI, ingestors, adapters)
+- Create a pull request
 
 ---
 
 ## ❓ FAQ
 
-**Q: Can it read PDFs?**  
-A: Extend `DocumentEmbedder` to parse files.
+**Q: Can I use a local LLM like LLaMA or Mistral?**  
+Yes, Ollama supports local model serving. Configure your desired model in `OllamaConfig`.
 
-**Q: How to scale?**  
-A: Use Docker, async ingestion, Milvus clustering.
+**Q: Can it ingest PDFs or CSVs?**  
+You’ll need to extend `DocumentEmbedder` with file parsing logic.
+
+**Q: How scalable is this?**  
+Milvus and Ollama can be containerized; scale services using Kubernetes or Docker Swarm.
 
 ---
 
-© 2025 Rajeev Singh – Open for collaboration!
+© 2025 Rajeev Singh – Built with ❤️ for RAG applications.
